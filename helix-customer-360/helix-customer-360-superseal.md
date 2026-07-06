@@ -45,7 +45,7 @@ Executes the Helix Trust Advisor pipeline against a named account. Starts with P
 - A single-question account lookup (use account-plan or customer-call-prep for lighter outputs)
 - Real-time product usage and health data (Lighthouse MCP not yet available in SuperSeal; the skill documents this gap and recommends manual lookup)
 - Technical DNS/domain reconnaissance (Radar MCP not yet available in SuperSeal; the skill documents this gap and recommends manual dig/nslookup)
-- Generating architecture SVG/PNG diagrams (requires Helix Deck external service; the skill describes where diagrams would appear but cannot render them)
+- Generating architecture SVG/PNG diagrams without Diagram skill (call the `Diagram` skill from SuperSeal to render architecture, SASE, or flow diagrams as self-contained SVGs)
 - Accounts with zero presence in Salesforce and no public domain (no data sources available to analyze)
 - Any output intended for direct external customer delivery without human review and approval
 - Non-account questions (product documentation, pricing, Worker code debugging, DNS troubleshooting)
@@ -82,13 +82,20 @@ Every output follows this structure (non-negotiable):
 - Incumbent identification and displacement targets
 
 **ACT 3: THE VISION (Customer Roadmap)** -- "This is the complete path"
-- F1 CORE (DNS, SSL, DDoS, WAF, CDN)
-- F2 AppSec + API (PageShield, Bot, API Shield, LB, Spectrum)
-- F3 SASE (Access, SWG, Email Security, DLP, CASB, Tunnels)
-- F4 Content + Dev (Images, Workers, R2, D1, Pages, Stream)
-- F5 Network (Magic WAN, Magic Transit, Magic Firewall)
-- F6 AI (AI Gateway, Inference Gateway, AI Firewall, MCP Servers)
+- F1 CORE (DNS, SSL, DDoS, WAF, CDN, Argo Smart Routing)
+- F2 AppSec + API (PageShield, Bot Mgmt, API Shield, LB, Spectrum, Waiting Room)
+- F3 SASE (Access, SWG, Email Security, DLP, CASB, RBI, Tunnels)
+- F4 Content + Dev (Images, R2, D1, Pages, Stream, Workers, Zaraz)
+- F5 Network (Magic WAN, Magic Transit, Magic Firewall, CNI)
+- F6 AI (AI Gateway, Inference Gateway, AI Firewall, Workers AI, DLP for AI, MCP Servers)
 - Per-phase status: Active / Proposed / Explore
+
+**IMPORTANT -- Product Deduplication Rules:**
+- Argo Smart Routing belongs ONLY in F1 CORE (never in F5 Network)
+- Workers AI belongs ONLY in F6 AI (never in F4 Content + Dev)
+- Workers (compute platform) belongs in F4; Workers AI (inference) belongs in F6
+- DLP (data protection) belongs in F3 SASE; DLP for AI (model input redaction) belongs in F6 AI
+- Each product appears in exactly ONE phase -- no duplicates across phases
 
 ## Execution Pipeline
 
@@ -155,9 +162,123 @@ Pure intelligence mode without sales framing. Produces:
 
 Does NOT produce: coaching, outreach sequences, deal strategy, negotiation playbook, email templates, pipeline forecasts. Audience-agnostic: safe to share across all roles.
 
+## Diagram Integration (SuperSeal `Diagram` Skill)
+
+After generating the 360 dossier, call the SuperSeal `Diagram` skill to produce architecture visuals. The 360 provides the data; Diagram renders it as SVG.
+
+### 3 Diagrams per 360 (when role = sa, sse, or se)
+
+| # | Diagram Type | Diagram Skill Template | Description |
+|---|---|---|---|
+| 1 | Architecture Map | `sase-three-column` | Current vs proposed state: left column = customer sources (identities, devices, locations), center = Cloudflare Edge with product grid mapped to F1-F6, right = customer destinations (apps, infra, networks) |
+| 2 | Deal Bridge | `simple-flow` | Financial transformation: incumbent cost (left) through Cloudflare platform (center) to projected value (right), with ACV per phase F1-F6 |
+| 3 | Customer Roadmap | `simple-flow` | 6-phase timeline F1 through F6: each phase as a node with status color (green=Active, orange=Proposed, blue=Explore), products listed below each node, timeline on the bottom axis |
+
+### How to Call Diagram from 360
+
+After completing ACT 3, generate the diagram description from the 360 data:
+
+**Architecture Map prompt example:**
+```
+"SASE three-column architecture for Palace Resorts. Left: Guest devices (mobile, laptop, kiosk), Staff devices (POS, PMS terminals), 10+ properties (Cancun, Riviera Maya, Cozumel, Jamaica). Center: Cloudflare Edge with DNS, WAF, CDN, Bot Management, PageShield, API Shield, Waiting Room. Right: Booking engine (palaceresorts.com), PMS (Opera), Loyalty (palaceelite.com), Payment gateway, SaaS apps. Title: Palace Resorts - Proposed Cloudflare Architecture"
+```
+
+**Customer Roadmap prompt example:**
+```
+"Simple left-to-right flow showing 6 phases for Palace Resorts. F1 CORE (Proposed, green border): DNS, WAF, CDN, DDoS, SSL. F2 AppSec (Proposed, orange border): Bot Mgmt, PageShield, API Shield. F3 SASE (Explore, blue border): Access, Gateway, Email Security. F4 Dev (Explore, blue border): Workers, R2, Images. F5 Network (Explore, blue border): Magic WAN, Magic Transit. F6 AI (Explore, blue border): AI Gateway, FW for AI. Timeline bar at bottom: Mes 1, Mes 2-3, Mes 4-6, Mes 6-9, Mes 9-12, Mes 12+. Title: Palace Resorts - Customer Roadmap F1-F6"
+```
+
+### Diagram Rules
+- Use data from the 360 dossier only -- never invent components not in the analysis
+- Phase status colors: Active = green (#22C55E), Proposed = orange (#F6821F), Explore = blue (#1A6FD4)
+- Incumbent products shown in red-dashed boxes when displacement is recommended
+- All labels in the same language as the 360 output (es/en/pt)
+- Product names always in English regardless of output language
+- Canvas: 1400x900 default; use 1920x1080 for Architecture Map if >12 products
+
+### When NOT to Generate Diagrams
+- `role: bdr` -- BDRs don't need architecture visuals
+- `role: manager, director, vp` -- leadership roles get narrative, not diagrams
+- `depth: min` -- minimal output skips diagrams
+- `partner_mode: true` -- diagrams may reveal internal strategy; skip unless explicitly requested
+
+---
+
+## Output Format Template (MANDATORY)
+
+Every 360 output MUST follow this exact document structure. Sections may be shorter or omitted based on `role` and `depth`, but the ORDER and NAMING is non-negotiable:
+
+```
+# HELIX 360 -- [Account Name]
+Dossier de Trusted Advisor | Rol: [Role] | Fecha: [Date] | Vertical: [Vertical] | Region: [Region]
+
+## Reporte de Capacidad MCP (Fase 0)
+[Table: MCP source | Status | Confidence Impact]
+Overall Confidence: [X/10 with explanation]
+
+## Snapshot de la Cuenta
+[Firmographics, SFDC entities, domains, properties/brands, relationship status]
+
+## ACTO 1: EL HOOK
+### Estrategia de Demo
+[Vertical selection, narrative hook]
+### Escenarios de Demo WAF PII
+[Table: 4 scenarios with PII type, attack pattern, CF product]
+### Escenarios de Demo AI Gateway
+[Table: 4 scenarios with fraud type, model defense, CF product]
+### Sugerencias de Chat
+[4 numbered suggestions: 2 use cases + 1 WAF + 1 Gateway]
+
+## ACTO 2: LA PLATAFORMA (Trusted Advisor)
+### 6 Hallazgos Criticos
+[Numbered 1-6, each with: severity badge, description, technical impact, recommendation]
+### Stack Tecnologico Observado
+[Table: category, technology, evidence, incumbent]
+### Incumbentes para Desplazamiento
+[Table: incumbent, area, displacement strategy]
+
+## ACTO 3: LA VISION (Customer Roadmap)
+### F1: CORE -- [Active/Proposed/Explore]
+[Product table with purpose and priority P0/P1/P2]
+### F2: AppSec + API -- [status]
+[Product table]
+### F3: SASE -- [status]
+[Product table]
+### F4: Content + Dev -- [status]
+[Product table]
+### F5: Network -- [status]
+[Product table]
+### F6: AI -- [status]
+[Product table]
+### Resumen Visual del Roadmap
+[ASCII table or call Diagram skill for SVG]
+
+## MEDDPICC
+[All 8 components with explicit gaps marked]
+
+## Estructura Comercial
+[Deal structure table: phase, SKUs, ACV range, timeline]
+
+## Propuesta de POC (role: se, sse, sa only)
+[Scope, timeline, success criteria]
+
+## Talking Points y Guardrails
+[What to say, what NOT to say, meeting flow]
+
+## Metadata y Atribucion de Fuentes
+[Table: section, source, confidence level]
+[Gaps requiring manual investigation]
+
+## Diagramas (role: sa, sse, se only)
+[Call Diagram skill with prompts derived from ACT 3 data]
+[3 diagrams: Architecture Map, Deal Bridge, Customer Roadmap]
+```
+
+---
+
 ## Methodology Reference
 
 Implements the Helix Framework -- Trusted Advisor Methodology for Platform Conversations.
-Wiki: https://wiki.cfdata.org/spaces/~janguiano/pages/1427854878/
+Wiki: https://wiki.cfdata.org/spaces/~janguiano/pages/1427854878/Helix+Framework+%E2%80%94+Trusted+Advisor+Methodology+for+Platform+Conversations
 Piloted with 6 LATAM accounts. Validated by Palace Resorts (June 24, 2026).
 Approved by Annika Garbers (Head of CF1 GTM, June 26, 2026) for regional expansion.

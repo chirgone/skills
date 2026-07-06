@@ -77,12 +77,18 @@ The skill generates a 6-phase Customer Roadmap with per-phase status:
 
 | Phase | Name | Products | Entry Point |
 |-------|------|----------|-------------|
-| F1 | CORE | DNS, SSL/TLS, DDoS Protection, WAF, CDN | Landing deal |
-| F2 | AppSec + API | PageShield, Bot Management, API Shield, Load Balancing, Spectrum | Expansion |
-| F3 | SASE | Access, SWG, Email Security, DLP, CASB, Tunnels | Cloudflare One |
-| F4 | Content + Dev | Images, Workers, R2, D1, Pages, Stream | Developer platform |
-| F5 | Network | Magic WAN, Magic Transit, Magic Firewall | Network transformation |
-| F6 | AI | AI Gateway, Inference Gateway, AI Firewall, MCP Servers | AI governance |
+| F1 | CORE | DNS, SSL/TLS, DDoS Protection, WAF, CDN, Argo Smart Routing | Landing deal |
+| F2 | AppSec + API | PageShield, Bot Management, API Shield, Load Balancing, Spectrum, Waiting Room | Expansion |
+| F3 | SASE | Access, SWG, Email Security, DLP, CASB, RBI, Tunnels | Cloudflare One |
+| F4 | Content + Dev | Images, Workers, R2, D1, Pages, Stream, Zaraz | Developer platform |
+| F5 | Network | Magic WAN, Magic Transit, Magic Firewall, CNI | Network transformation |
+| F6 | AI | AI Gateway, Inference Gateway, AI Firewall, Workers AI, DLP for AI, MCP Servers | AI governance |
+
+**Product deduplication rules (no product appears in more than one phase):**
+- Argo Smart Routing: F1 only (not F5)
+- Workers AI: F6 only (not F4)
+- Workers (compute): F4 only; Workers AI (inference): F6 only
+- DLP (data protection): F3 only; DLP for AI (model input redaction): F6 only
 
 Phase status per customer:
 - **Active** -- already deployed and in use (confirmed via Salesforce or Lighthouse)
@@ -351,10 +357,81 @@ Existing skills remain available for users who need only a specific output. Cust
 
 ---
 
+## Diagram Integration (SuperSeal `Diagram` Skill)
+
+After generating the 360 dossier, call the SuperSeal `Diagram` skill to produce architecture visuals. The 360 provides the data; Diagram renders it as SVG.
+
+### 3 Diagrams per 360 (when role = sa, sse, or se)
+
+| # | Diagram Type | Diagram Skill Template | Description |
+|---|---|---|---|
+| 1 | Architecture Map | `sase-three-column` | Current vs proposed: left = customer sources (identities, devices, locations), center = Cloudflare Edge with product grid mapped to F1-F6, right = destinations (apps, infra, networks) |
+| 2 | Deal Bridge | `simple-flow` | Financial transformation: incumbent cost (left) through Cloudflare platform (center) to projected value (right), with ACV per phase |
+| 3 | Customer Roadmap | `simple-flow` | 6-phase timeline F1-F6: each phase as a node with status color (green=Active, orange=Proposed, blue=Explore), products listed below, timeline on bottom axis |
+
+### How to Call Diagram from 360
+
+After completing ACT 3, generate the diagram description from the 360 data:
+
+**Architecture Map prompt example:**
+```
+"SASE three-column architecture for [Account]. Left: [sources from dossier]. Center: Cloudflare Edge with [products from F1-F6]. Right: [destinations from dossier]. Title: [Account] - Proposed Cloudflare Architecture"
+```
+
+**Customer Roadmap prompt example:**
+```
+"Simple left-to-right flow showing 6 phases for [Account]. F1 CORE ([status]): [products]. F2 AppSec ([status]): [products]. F3 SASE ([status]): [products]. F4 Dev ([status]): [products]. F5 Network ([status]): [products]. F6 AI ([status]): [products]. Timeline at bottom. Title: [Account] - Customer Roadmap F1-F6"
+```
+
+### Diagram Rules
+- Use data from the 360 dossier only -- never invent components
+- Phase status colors: Active = green (#22C55E), Proposed = orange (#F6821F), Explore = blue (#1A6FD4)
+- Incumbent products shown in red-dashed boxes when displacement is recommended
+- Labels in the same language as the 360 output; product names always in English
+- Canvas: 1400x900 default; 1920x1080 for Architecture Map if >12 products
+
+### When NOT to Generate Diagrams
+- `role: bdr, manager, director, vp` -- these roles get narrative, not diagrams
+- `depth: min` -- minimal output skips diagrams
+- `partner_mode: true` -- skip unless explicitly requested
+
+---
+
+## Output Format Template (MANDATORY)
+
+Every 360 output MUST follow this exact document structure. The ORDER and NAMING is non-negotiable:
+
+```
+# HELIX 360 -- [Account Name]
+Dossier de Trusted Advisor | Rol: [Role] | Fecha: [Date] | Vertical: [Vertical]
+
+## Reporte de Capacidad MCP (Fase 0)
+[Table: MCP source | Status | Confidence Impact]
+
+## Snapshot de la Cuenta
+[Firmographics, SFDC entities, domains, relationship status]
+
+## ACTO 1: EL HOOK
+### Estrategia de Demo / Escenarios WAF PII / Escenarios AI Gateway / Sugerencias de Chat
+
+## ACTO 2: LA PLATAFORMA (Trusted Advisor)
+### 6 Hallazgos Criticos / Stack Tecnologico / Incumbentes para Desplazamiento
+
+## ACTO 3: LA VISION (Customer Roadmap)
+### F1-F6 with status, product tables, and visual roadmap
+
+## MEDDPICC / Estructura Comercial / POC / Talking Points / Metadata
+
+## Diagramas (role: sa, sse, se only)
+[Call Diagram skill with prompts derived from ACT 3 data]
+```
+
+---
+
 ## Methodology Reference
 
 This skill implements the **Helix Framework -- Trusted Advisor Methodology for Platform Conversations**, documented at:
 
-`https://wiki.cfdata.org/spaces/~janguiano/pages/1427854878/`
+`https://wiki.cfdata.org/spaces/~janguiano/pages/1427854878/Helix+Framework+%E2%80%94+Trusted+Advisor+Methodology+for+Platform+Conversations`
 
 The methodology was piloted with 6 LATAM accounts including Palace Resorts (validated June 24, 2026) and presented to Annika Garbers (Head of Cloudflare One GTM) on June 26, 2026, with approval for expansion to additional regions.
