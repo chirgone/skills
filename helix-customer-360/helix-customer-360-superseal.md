@@ -1,38 +1,44 @@
 ---
 name: helix-customer-360
 description: >
-  Role-aware strategic intelligence engine that produces a complete customer
-  dossier for any named account. Executes a 10-phase analysis pipeline
-  (Recon, Discovery, Evaluation, Architecture, Gap Analysis, Strategy,
-  Pipeline, Commercial, Executive Prep, Metadata) and delivers a tailored
-  output bundle based on requesting role: BDR, AE, SE, SSE, SA, Manager,
-  Director, or VP. Pulls from Salesforce, Cloudflare Docs, Wiki, Google
-  Workspace, and vertical-specific context (regulatory, competitive,
-  MEDDPICC) to produce deliverables from BDR outreach sequences to full
-  SA-grade dossiers. Supports partner_mode for channel partners where
-  internal data is excluded. Designed for LATAM but applicable globally.
-  Replaces 5 separate skills (account-plan, customer-call-prep, cf1-bdr,
-  discovery-guide, expansion-finder) with a single unified workflow.
+  Unified Trust Advisor Engine implementing the Helix 3-Act Methodology
+  (Hook, Platform, Vision) combined with Utopia vertical intelligence and
+  live account data. Produces a complete customer engagement package for
+  any named account structured around 3 acts: ACT 1 (Hook Setup) defines
+  branded demo strategy, ACT 2 (Trusted Advisor) delivers 6 Critical
+  Findings and incumbent analysis from public reconnaissance, ACT 3
+  (Customer Roadmap) maps a 6-phase sequential deployment plan with
+  per-phase status (Active/Proposed/Explore). Pulls from Salesforce,
+  Utopia wiki pages (11 verticals via Wiki MCP), Cloudflare Docs, and
+  vertical-specific context (regulatory, competitive, MEDDPICC). Delivers
+  role-tailored output for 9 roles: BDR, AE, SE, SSE, SA, Manager,
+  Director, VP, and Intel (pure intelligence without sales framing).
+  Supports partner_mode for channel partners. Starts every execution with
+  Phase 0 MCP Capability Check to report available vs missing data sources.
+  Designed for LATAM but applicable globally. Replaces 5 separate skills
+  (account-plan, customer-call-prep, cf1-bdr, discovery-guide,
+  expansion-finder) with a single unified Trust Advisor workflow.
 ---
 
 ## When to Use
 
 - "Run a 360 on [account]"
-- "Build me a full dossier for [customer]"
+- "Build me a Trusted Advisor brief for [customer]"
 - "I need to prep for [account] as a [BDR/AE/SE/SA]"
-- "What's our full story on [customer]?"
-- "Generate a customer roadmap for [account]"
+- "What's the customer roadmap for [account]?"
+- "Generate the 3-act funnel for [customer]"
 - "Give me the partner brief for [account]"
+- "What are the critical findings for [customer]?"
+- "What should I demo to [account]?"
 - When a new AE/SE/SA inherits an account and needs a complete ramp document in one shot
-- When preparing for an EBC, QBR, or executive sponsor meeting and need the full picture
+- When preparing for an EBC, QBR, or executive sponsor meeting and need the full Helix funnel
 - When a partner asks "what should we sell this customer?" and you need a data-backed answer without exposing internal Cloudflare data
 - When building territory plans and need consistent intelligence across 10+ accounts
 - When onboarding a new Cloudflare employee to a strategic account
-- When an SA needs a publishable dossier with architecture diagrams, gap analysis, and phased deployment plan
 
 ## What I Do
 
-Executes a 10-phase intelligence pipeline against a named account and produces role-specific deliverables. Queries Salesforce (6-7 queries covering Account, Opportunity, Case, Contact, Activity, and Contract objects) as the primary data source. Enriches with Cloudflare product documentation for technical accuracy and battlecard context. Loads vertical-specific context files covering 11 industries (telco, finserv, government, media, retail, hospitality, healthcare, utilities, airlines, automotive, education) with LATAM regulatory frameworks, competitive landscapes, pain points, discovery questions, and recommended Cloudflare bundles. Applies the Customer Roadmap methodology (6 phases: CDN/WAF/Bot/DDoS, SASE, Developer Platform, Network Services, AI/Innovation) to sequence recommendations based on where the customer actually is today. Pre-fills MEDDPICC with explicit gaps (Champion and Economic Buyer are never marked complete without direct customer input). Generates role-appropriate output: BDR gets outreach sequences and LinkedIn templates; AE gets deal briefs and MEDDPICC coaching; SE gets POC proposals and demo scripts; SSE gets architecture reviews and migration guides; SA gets the full 360 dossier with all 10 sections; Manager gets pipeline coaching briefs; Director gets territory summaries; VP gets board-ready narratives. Supports partner_mode (hard boundary: zero internal Cloudflare data in output) and three output languages (Spanish, English, Portuguese). Publishes to Wiki, Google Docs, or local Markdown.
+Executes the Helix Trust Advisor pipeline against a named account. Starts with Phase 0 (MCP Capability Check) to detect connected data sources and report confidence impact. Then runs an 11-phase intelligence pipeline: Recon (Salesforce 6-query minimum), Discovery (Utopia wiki page fetch for the detected vertical covering 11 industries), Evaluation (product adoption mapped to 6 canonical phases), Architecture (ACT 2 Trusted Advisor: 6 Critical Findings, incumbent detection, tech stack), Gap Analysis (Utopia "should have" vs Salesforce "actually has"), Strategy (MEDDPICC with explicit gaps), Pipeline (ACT 3 Customer Roadmap: F1 CORE, F2 AppSec+API, F3 SASE, F4 Content+Dev, F5 Network, F6 AI with Active/Proposed/Explore status), Commercial (deal structure aligned to F1-F6), Exec Prep (ACT 1 Hook Setup: demo vertical, WAF PII scenarios, AI Gateway fraud scenarios, chat suggestions), and Metadata (source attribution, confidence scoring, MCP capability report). Delivers role-appropriate output: BDR gets outreach sequences; AE gets deal briefs and MEDDPICC coaching; SE gets POC proposals and Hook Setup; SSE gets architecture reviews; SA gets the full 360 dossier; Manager gets pipeline coaching; Director gets territory summaries; VP gets board-ready narratives; Intel gets pure facts without sales framing. Supports partner_mode (hard boundary: zero internal data) and three output languages (Spanish, English, Portuguese). Publishes to Wiki, Google Docs, or local Markdown. Implements the 6 Rules of the Helix Portal as quality standards.
 
 ## Do NOT use me for
 
@@ -51,148 +57,107 @@ Executes a 10-phase intelligence pipeline against a named account and produces r
 | Input | Required | Description |
 |-------|----------|-------------|
 | `account_name` | Yes | Customer account name (triggers Salesforce lookup) |
-| `role` | No | Requesting role: `bdr`, `ae`, `se`, `sse`, `sa`, `manager`, `director`, `vp` (default: `sa`) |
+| `role` | No | Requesting role: `bdr`, `ae`, `se`, `sse`, `sa`, `manager`, `director`, `vp`, `intel` (default: `sa`) |
 | `vertical` | No | Industry vertical: `telco`, `finserv`, `government`, `media`, `retail`, `hospitality`, `healthcare`, `utilities`, `airlines`, `automotive`, `education` -- auto-detected from Salesforce if omitted |
-| `region` | No | Geographic region: `latam`, `emea`, `apac`, `amer` -- drives regulatory context and competitive landscape (default: `latam`) |
-| `partner_mode` | No | If `true`, excludes all internal Cloudflare data (Salesforce, Lighthouse); output based on public intelligence, Cloudflare Docs product catalog, and vertical context only |
-| `domains` | No | Customer domains for DNS/technical reconnaissance when available |
-| `focus` | No | Specific focus area: `expansion`, `retention`, `competitive-displacement`, `greenfield`, `all` (default: `all`) |
-| `depth` | No | Output depth: `min` (5-min read, key facts only), `standard` (default, full analysis), `executive` (board-ready narrative with financial framing) |
+| `region` | No | Geographic region: `latam`, `emea`, `apac`, `amer` -- drives regulatory context (default: `latam`) |
+| `partner_mode` | No | If `true`, excludes all internal Cloudflare data |
+| `domains` | No | Customer domains for DNS/technical reconnaissance |
+| `focus` | No | Focus area: `expansion`, `retention`, `competitive-displacement`, `greenfield`, `all` (default: `all`) |
+| `depth` | No | Output depth: `min`, `standard` (default), `executive` |
 | `language` | No | Output language: `es` (default), `en`, `pt` |
-| `sfdc_account_id` | No | Direct Salesforce Account ID for faster lookup |
 
-## Key Outputs
+## The Helix 3-Act Structure
 
-The skill produces different deliverables based on the `role` input. All roles receive a core intelligence package; role-specific sections are added or removed based on what that persona needs to act.
+Every output follows this structure (non-negotiable):
 
-### Core Intelligence (all roles)
+**ACT 1: THE HOOK** -- "Look what AI agents can do for your industry"
+- Vertical selection for branded portal demo
+- WAF PII demo scenarios (credit cards, passports, emails, phones)
+- AI Gateway fraud demo scenarios (Llama Guard 3, multilingual)
+- 4 chat suggestions (2 use cases + 1 WAF + 1 Gateway)
 
-- **Customer 360 Dossier** (Markdown, publishable to Wiki) with sections:
-  1. **Executive Summary** -- 3-paragraph synthesis: who they are, where they stand with Cloudflare, and the single most important action to take now
-  2. **Account Snapshot** -- firmographics, vertical classification, Cloudflare relationship tenure, contract dates, account team, last meaningful interaction
-  3. **Current State** -- products deployed, usage patterns, support ticket trends, health indicators, satisfaction signals
-  4. **Vertical Context** -- industry-specific pain points, regulatory requirements, competitive pressure, digital transformation maturity
-  5. **Gap Analysis** -- products not adopted vs. products they should have based on vertical context, architecture patterns, and peer benchmarks; scored by fit, urgency, and revenue impact
-  6. **Competitive Landscape** -- incumbent vendors identified via DNS/technical recon, displacement opportunities, competitive talking points sourced from Cloudflare Docs battlecards
-  7. **MEDDPICC Assessment** -- pre-filled framework: Metrics (quantified business impact), Economic Buyer (identified or gap), Decision Criteria, Decision Process, Paper Process, Identified Pain, Champion (named or gap), Competition
-  8. **Customer Roadmap** -- phased deployment plan using Cloudflare methodology:
-     - Phase 1+2: CDN, WAF, Bot Management, DDoS
-     - Phase 3: SASE (Access, Gateway, CASB, DLP, Browser Isolation)
-     - Phase 4: Developer Platform (Workers, Pages, R2, D1)
-     - Phase 5: Network Services (Magic WAN, Magic Transit, Spectrum)
-     - Phase 6: AI and Innovation (Workers AI, AI Gateway, AI Firewall, MCP)
-  9. **Commercial Strategy** -- prioritized expansion plays with estimated ACV impact, recommended bundles (Starter, Professional, Utopia), phased commercial approach
-  10. **Sources and Methodology** -- data sources used, confidence levels, gaps that need human input
+**ACT 2: THE PLATFORM (Trusted Advisor)** -- "We analyzed [Customer] before this conversation"
+- 6 Critical Findings from public reconnaissance
+- Observed Technology Stack with vendors and evidence
+- Incumbent identification and displacement targets
 
-### Role-Specific Additions
-
-- **BDR** (`role: bdr`): Adds outreach sequence (8-touch multi-channel cadence), persona-specific messaging matrix, discovery question framework, qualification criteria, LinkedIn connection request templates. Omits: architecture diagrams, MEDDPICC deep-dive, phased deployment technical detail.
-- **AE** (`role: ae`): Adds deal strategy brief, MEDDPICC coaching notes, negotiation playbook, executive sponsor engagement plan, pipeline forecast inputs. Omits: technical architecture detail, POC specifications.
-- **SE** (`role: se`): Adds POC proposal template, demo script aligned to identified pain points, technical validation checklist, integration architecture notes. Omits: BDR sequences, financial forecast detail.
-- **SSE** (`role: sse`): Adds detailed architecture review, migration guide from incumbent, performance benchmarking framework, technical risk assessment. Omits: BDR sequences, commercial strategy detail.
-- **SA** (`role: sa`): Full dossier -- all 10 sections plus architecture diagrams, Customer Roadmap visual, deal bridge analysis. This is the maximum output.
-- **Manager** (`role: manager`): Adds pipeline health dashboard, coaching brief for the account team, resource allocation recommendation, escalation triggers. Omits: technical architecture, POC specs.
-- **Director** (`role: director`): Adds territory-level context (how this account fits the territory strategy), partner leverage analysis, QBR-ready executive summary. Omits: technical detail, BDR sequences.
-- **VP** (`role: vp`): Adds board-ready narrative, regional strategy alignment, competitive market share context, logo-level strategic value. Omits: all tactical and technical detail.
-
-### Output Formats
-
-- Markdown file saved to: `~/helix-deck/360/[account-slug]-360-[role]-[date].md`
-- Wiki page published to: `wiki.cfdata.org` in the operator's personal space (requires Wiki MCP)
-- Google Doc created via Google Workspace MCP (optional, for sharing with non-wiki users)
-- Jira ticket created for follow-up actions identified in the dossier (optional, requires Jira MCP)
-
-## Quality Bar Highlights
-
-1. **Salesforce-first, always** -- run a minimum of 6 queries (Account, Opportunity, Case, Contact, Activity, Contract) before writing a single word; a 360 without CRM data is creative writing, not intelligence. If Salesforce returns empty for an account, classify as PROSPECT and state it explicitly -- never fabricate a customer relationship.
-2. **Vertical context is mandatory** -- every 360 must load and apply the relevant vertical context; a hospitality 360 that doesn't mention PCI DSS for payment processing, guest Wi-Fi architecture, or seasonal traffic patterns is incomplete. If no vertical context exists for the industry, flag it as a gap and use the closest available vertical as a proxy.
-3. **Role determines output, not truncation** -- a BDR output is not a shortened SA output; it is a fundamentally different document with different sections, different language, and different action items. A BDR needs email copy and LinkedIn templates; an SA needs architecture diagrams and MEDDPICC. Never truncate a full 360 and call it role-appropriate.
-4. **MEDDPICC must have gaps** -- a perfect MEDDPICC score on first generation means the skill is guessing. At minimum, Champion and Economic Buyer should have explicit gaps noted with recommended actions to fill them (e.g., "Champion: Not identified -- recommend mapping org chart with AE before next call"). Marking every field as complete without direct customer input is dishonest.
-5. **Customer Roadmap phases are sequential, not a menu** -- Phase 1+2 is always the foundation; do not recommend Phase 4 (Developer Platform) to an account that hasn't deployed Phase 1 (CDN/WAF). The roadmap must reflect where the customer actually is today and what comes next, not what generates the most pipeline.
-6. **Partner mode is a hard boundary** -- when `partner_mode: true`, zero internal Cloudflare data appears in the output. No Salesforce IDs, no ACV figures, no internal health scores, no account team names. The output must be safe to hand to a channel partner without redaction. Violating this boundary is a trust-breaking event.
-7. **Competitive claims must be sourced** -- never assert "Akamai is slower" or "Zscaler is more expensive" without citing a specific Cloudflare Docs battlecard, analyst report, or verified benchmark. Unsourced competitive claims damage credibility in front of customers and partners.
-8. **Language consistency** -- the entire output must be in one language (set by `language` input); mixing Spanish and English within a document is never acceptable. Technical product names (Workers, Magic Transit, CASB) stay in English regardless of output language.
-9. **Action items must have owners and dates** -- "Follow up with the customer" is not an action item. "AE: Schedule discovery call with [CTO name] by [date] to validate SASE timeline" is. Every action item in the dossier must specify who, what, and when.
-10. **Acknowledge what you don't know** -- if DNS recon is unavailable (no Radar MCP), say "Technical stack detection unavailable -- recommend manual reconnaissance." If Lighthouse data is unavailable, say "Product usage and health data not available -- analysis based on Salesforce records and vertical benchmarks only." Never fill gaps with assumptions presented as facts.
-
-## Vertical Context
-
-The skill applies vertical-specific intelligence for 11 industries. Each vertical covers: industry overview, top 10 pain points, regulatory framework (country-by-country for LATAM), Cloudflare product mapping, competitive landscape, MEDDPICC patterns, discovery questions, recommended bundles (Starter/Professional/Utopia), and case studies.
-
-Available verticals:
-- **Telco** -- MNO/MVNO/Cable/ISP: SP partnerships, DNS at scale, CGNAT, network services
-- **FinServ** -- Banking/insurance: CNBV, BACEN, SFC, eBanking, PCI DSS 4.0, SWIFT
-- **Government** -- Federal/state/municipal: sovereignty, compliance, citizen services, elections
-- **Media** -- Streaming/news/entertainment: live events, CDN at scale, DRM, ad tech
-- **Retail** -- E-commerce/omnichannel: peak traffic (Buen Fin, Black Friday), bot protection, API security
-- **Hospitality** -- Hotels/resorts/tourism: PCI, guest Wi-Fi, seasonal traffic, IoT, OTA management
-- **Healthcare** -- Hospital/pharma/healthtech: HIPAA, HL7, telemedicine, patient portals
-- **Utilities** -- Energy/water/mining: OT/IT convergence, SCADA, remote sites, critical infrastructure
-- **Airlines** -- Aviation/travel: booking engines, loyalty programs, seasonal demand, GDS integration
-- **Automotive** -- Manufacturing/connected vehicles: supply chain, IoT, API ecosystems, dealer networks
-- **Education** -- Universities/edtech: research networks, student services, LMS, seasonal enrollment
-
-When no vertical context is available for a specific industry, the skill uses the closest available vertical as a proxy and documents the gap.
+**ACT 3: THE VISION (Customer Roadmap)** -- "This is the complete path"
+- F1 CORE (DNS, SSL, DDoS, WAF, CDN)
+- F2 AppSec + API (PageShield, Bot, API Shield, LB, Spectrum)
+- F3 SASE (Access, SWG, Email Security, DLP, CASB, Tunnels)
+- F4 Content + Dev (Images, Workers, R2, D1, Pages, Stream)
+- F5 Network (Magic WAN, Magic Transit, Magic Firewall)
+- F6 AI (AI Gateway, Inference Gateway, AI Firewall, MCP Servers)
+- Per-phase status: Active / Proposed / Explore
 
 ## Execution Pipeline
 
-The skill executes 10 phases in sequence. Each phase adds data to the intelligence context; later phases reference earlier findings:
-
 ```
-Phase 1: RECON          Salesforce lookup + DNS/domain analysis (if domains provided)
-Phase 2: DISCOVERY      Vertical context loading + regulatory framework identification
-Phase 3: EVALUATION     Product adoption analysis + health assessment + support trends
-Phase 4: ARCHITECTURE   Current vs. recommended architecture mapping
-Phase 5: GAP ANALYSIS   Whitespace identification + peer benchmarking + fit scoring
-Phase 6: STRATEGY       MEDDPICC pre-fill + competitive positioning + champion mapping
-Phase 7: PIPELINE       Commercial sizing + bundle recommendations + phased approach
-Phase 8: COMMERCIAL     Deal structure + negotiation context + pricing guidance
-Phase 9: EXEC PREP      Executive summary + talking points + "what not to promise"
-Phase 10: METADATA      Source attribution + confidence scoring + gap documentation
+Phase 0:  MCP CHECK       Detect connected MCPs, report confidence impact
+Phase 1:  RECON           Salesforce 6-query lookup + DNS/domain analysis
+Phase 2:  DISCOVERY       Utopia wiki page fetch for vertical context
+Phase 3:  EVALUATION      Product adoption mapped to F1-F6 phase status
+Phase 4:  ARCHITECTURE    ACT 2: 6 Critical Findings + incumbent detection
+Phase 5:  GAP ANALYSIS    Utopia "should have" vs Salesforce "actually has"
+Phase 6:  STRATEGY        MEDDPICC pre-fill + competitive positioning
+Phase 7:  PIPELINE        ACT 3: Customer Roadmap F1-F6 with status
+Phase 8:  COMMERCIAL      Deal structure aligned to F1-F6 phases
+Phase 9:  EXEC PREP       ACT 1: Hook Setup + talking points
+Phase 10: METADATA        Source attribution + confidence + MCP report
 ```
 
-In `partner_mode`, Phases 1 and 3 operate on public data only (no Salesforce). The output clearly states "Analysis based on public intelligence and vertical benchmarks" in the metadata.
+## Utopia Wiki Pages (Dynamic Vertical Intelligence)
 
-## Data Source Priority
+The skill fetches vertical context from Utopia wiki pages via Wiki MCP:
 
-The skill consults data sources in this priority order. If a higher-priority source is unavailable, it falls back to the next level and documents the gap:
+| Vertical | Wiki Page ID |
+|----------|-------------|
+| Telco | 1431715994 |
+| FinServ | 1187496098 |
+| Government | 1092896800 |
+| Media | 1182734455 |
+| Retail | 1214482141 |
+| Hospitality | 1431718498 |
+| Healthcare | 1182735362 |
+| Utilities | 1239967266 |
+| Airlines | 1182745297 |
+| Automotive | 1295366832 |
+| Education | 1182730943 |
 
-| Priority | Source | What It Provides | MCP Required |
-|----------|--------|------------------|--------------|
-| 1 | Salesforce | Account, opportunities, cases, contacts, activities, contracts | Salesforce MCP |
-| 2 | Lighthouse API | Products purchased, usage vs. caps, health alerts, propensity, billing, Halo ROI | Lighthouse MCP (not yet in SuperSeal) |
-| 3 | Cloudflare Docs | Product catalog, feature specs, battlecards, best practices | Cloudflare Docs MCP |
-| 4 | DNS/Domain Recon | Incumbent detection, security posture, email provider, DNSSEC status | Radar MCP (not yet in SuperSeal) |
-| 5 | Vertical Context | Industry pain points, regulatory requirements, competitive landscape, MEDDPICC patterns | Bundled with skill |
-| 6 | Elasticsearch | Error patterns, log analysis for existing customers | Elasticsearch MCP |
-| 7 | Wiki/Confluence | Existing account documentation, team pages, methodology docs | Wiki MCP |
-| 8 | Google Workspace | Previous meeting notes, email threads, shared documents | Google Workspace MCP |
+Fallback: local context files bundled with the skill.
 
-When a data source is unavailable, the skill must:
-- State which source is missing in the Metadata section
-- Describe what intelligence is degraded as a result
-- Recommend how to fill the gap manually
-- Never substitute assumptions for missing data
+## Quality Bar: 6 Helix Rules + 6 Technical Standards
 
-## Partner Mode
+**Helix Portal Rules:**
+1. Everything comes from the 360 dossier -- nothing invented
+2. No internal data shown to prospect
+3. Incumbent always mentioned with public evidence
+4. Gateway demo = explicit fraud intent
+5. defaultLang reflects the customer
+6. 6 phases always, only status changes
 
-When `partner_mode: true`:
+**Technical Standards:**
+7. Salesforce-first (6-query minimum before writing)
+8. MEDDPICC must have explicit gaps
+9. Customer Roadmap phases are sequential (F1 always first)
+10. Partner mode is a hard boundary (zero internal data)
+11. 3-act structure is mandatory in every output
+12. Phase 0 MCP report is mandatory in every execution
 
-- **Excluded**: Salesforce data, Lighthouse data, internal health scores, ACV/ARR figures, account team names, internal opportunity IDs, Jira tickets, internal escalation history
-- **Included**: Cloudflare Docs product catalog, vertical context files, public DNS/domain data, general competitive intelligence, industry benchmarks, regulatory frameworks
-- **Output label**: Every page and section header includes "(Partner Brief)" to prevent confusion with internal documents
-- **Use case**: Channel partner enablement, partner SE training, joint selling preparation, partner onboarding to a vertical
+## Role: Intel (9th Role)
 
-## Relationship to Existing Skills
+Pure intelligence mode without sales framing. Produces:
+- Account Snapshot, Current State, Vertical Intelligence
+- Competitive Landscape (neutral), Gap Analysis (neutral)
+- Customer Roadmap (F1-F6 with status, no "sell" language)
+- MEDDPICC Facts (observed only, no coaching)
+- Risk Signals, Sources and Confidence
 
-This skill unifies and supersedes several existing SuperSeal skills:
+Does NOT produce: coaching, outreach sequences, deal strategy, negotiation playbook, email templates, pipeline forecasts. Audience-agnostic: safe to share across all roles.
 
-| Existing Skill | What Customer 360 Replaces | How |
-|----------------|---------------------------|-----|
-| Account Plan | Sections 1-9 of the SA output | 360 produces a superset with vertical context and Customer Roadmap |
-| Customer Call Prep | Executive Prep phase (Phase 9) | 360 includes "What I want to learn / should say / should NOT promise" |
-| CF1 BDR | BDR role output | 360 with `role: bdr` produces outreach sequences with vertical-specific messaging |
-| Discovery Guide | Discovery phase (Phase 2) + vertical context | 360 loads industry-specific discovery questions from vertical context files |
-| Expansion Finder | Gap Analysis phase (Phase 5) | 360 produces scored whitespace analysis with Customer Roadmap sequencing |
+## Methodology Reference
 
-Existing skills remain available for users who need only a specific output. Customer 360 is for users who need the complete picture in one execution.
+Implements the Helix Framework -- Trusted Advisor Methodology for Platform Conversations.
+Wiki: https://wiki.cfdata.org/spaces/~janguiano/pages/1427854878/
+Piloted with 6 LATAM accounts. Validated by Palace Resorts (June 24, 2026).
+Approved by Annika Garbers (Head of CF1 GTM, June 26, 2026) for regional expansion.

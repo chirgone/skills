@@ -2,7 +2,11 @@
 
 **Region:** Latin America  
 **Sub-verticals:** Hotels, Resorts, All-inclusive, Vacation Clubs, Hostels, Casino-Hotels, Convention Centers  
-**Last Updated:** 2026-07-06
+**Last Updated:** 2026-07-06  
+**Utopia Wiki Page ID:** 1431718498  
+**Utopia Wiki URL:** https://wiki.cfdata.org/spaces/~janguiano/pages/1431718498/  
+**Fallback:** This file serves as static fallback when Wiki MCP is unavailable  
+**Helix Phase Mapping:** F1 (CDN/WAF/DDoS/SSL), F2 (Bot/PageShield/API Shield), F3 (Access/Gateway/Email), F4 (Workers/R2), F5 (Magic WAN/Transit), F6 (AI Gateway/Workers AI)
 
 ---
 
